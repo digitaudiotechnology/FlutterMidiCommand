@@ -221,7 +221,7 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
             if manager.state == CBManagerState.poweredOn {
                 print("Start discovery")
                 manager.stopScan()
-                let serviceList = [CBUUID(string: "03B80E5A-EDE8-4B33-A751-6CE34EC4C700")]
+                let serviceList = [CBUUID(string: "180A"), CBUUID(string: "03B80E5A-EDE8-4B33-A751-6CE34EC4C700")]
                 manager.retrieveConnectedPeripherals(withServices: serviceList)
                 manager.scanForPeripherals(withServices: serviceList, options: nil)
                 result(nil)
@@ -560,10 +560,15 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
         
         for periph:CBPeripheral in discoveredDevices {
             let id = periph.identifier.uuidString
+          var manufacturer:String = (connectedDevices.keys.contains(id) ? (connectedDevices[id] as? ConnectedBLEDevice)?.manufacturerName : "") ?? ""
+          var isDigitMusic:Bool = false
+          if (manufacturer == "Digit Audio Technology Ltd.\0") {
+            isDigitMusic = true
+          }
             devices.append([
-                "name" : periph.name ?? "Unknown",
+              "name" : "\(periph.name ?? "Unknown") \(isDigitMusic ? "#DigitMusic" :"")" ,
                 "id" : id,
-                "type" : "BLE",
+                "type" :"BLE" ,
                 "connected":(connectedDevices.keys.contains(id) ? "true" : "false"),
                 "inputs" : [["id":0, "connected":false] as [String:Any]],
                 "outputs" : [["id":0, "connected":false] as [String:Any]]
@@ -1516,6 +1521,7 @@ class ConnectedOwnVirtualDevice : ConnectedVirtualOrNativeDevice {
 class ConnectedBLEDevice : ConnectedDevice, CBPeripheralDelegate {
     var peripheral:CBPeripheral
     var characteristic:CBCharacteristic?
+    var manufacturerName: String = ""
     
     
     // BLE MIDI parsing
@@ -1554,7 +1560,7 @@ class ConnectedBLEDevice : ConnectedDevice, CBPeripheralDelegate {
     func setupBLE(stream: StreamHandler) {
         setupStream = stream
         peripheral.delegate = self
-        peripheral.discoverServices([CBUUID(string: "03B80E5A-EDE8-4B33-A751-6CE34EC4C700")])
+        peripheral.discoverServices([CBUUID(string: "180A"),CBUUID(string: "03B80E5A-EDE8-4B33-A751-6CE34EC4C700")])
     }
     
     
@@ -1706,6 +1712,11 @@ class ConnectedBLEDevice : ConnectedDevice, CBPeripheralDelegate {
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         print("perif didDiscoverCharacteristicsFor  \(String(describing: service.characteristics))")
         for characteristic:CBCharacteristic in service.characteristics! {
+            if characteristic.uuid.uuidString == "2A29" {
+              let stringValue = String(data: characteristic.value!, encoding: .utf8)
+              print("Manufacturer \(stringValue ?? "")")
+              self.manufacturerName = stringValue ?? ""
+            }
             if characteristic.uuid.uuidString == "7772E5DB-3868-4112-A1A9-F2669D106BF3" {
                 self.characteristic = characteristic
                 peripheral.setNotifyValue(true, for: characteristic)
@@ -1728,6 +1739,7 @@ class ConnectedBLEDevice : ConnectedDevice, CBPeripheralDelegate {
             res(FlutterError.init(code: "BLEERROR", message: "Did not discover MIDI characteristics", details: id))
         }
     }
+       
     
     func createMessageEvent(_ bytes:[UInt8], timestamp:UInt64, peripheral:CBPeripheral) {
         //        print("send rx event \(bytes)")
@@ -1951,3 +1963,4 @@ class ConnectedBLEDevice : ConnectedDevice, CBPeripheralDelegate {
     }
     
 }
+
