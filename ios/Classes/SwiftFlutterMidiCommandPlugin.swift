@@ -63,9 +63,7 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
     var manager:CBCentralManager!
     var discoveredDevices:Set<CBPeripheral> = []
     
-    
     var ongoingConnections = Dictionary<String, FlutterResult>()
-    
     
     let midiLog = OSLog(subsystem: "com.invisiblewrench.FlutterMidiCommand", category: "MIDI")
     
@@ -179,9 +177,8 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
     // BLE
     public func startBluetoothCentralWhenNeeded(){
         if(manager == nil){
-            manager = CBCentralManager.init(delegate: self, queue: DispatchQueue.global(qos: .userInteractive))
-            
-            updateBluetoothState(data: getBluetoothCentralStateAsString())
+          manager = CBCentralManager.init(delegate: self, queue: DispatchQueue.global(qos: .userInteractive))
+          updateBluetoothState(data: getBluetoothCentralStateAsString())
         }
     }
     
@@ -220,6 +217,7 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
             print("\(manager.state.rawValue)")
             if manager.state == CBManagerState.poweredOn {
                 print("Start discovery")
+                discoveredDevices = []
                 manager.stopScan()
                 let serviceList = [CBUUID(string: "180A"), CBUUID(string: "03B80E5A-EDE8-4B33-A751-6CE34EC4C700")]
                 manager.retrieveConnectedPeripherals(withServices: serviceList)
@@ -560,7 +558,7 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
         
         for periph:CBPeripheral in discoveredDevices {
             let id = periph.identifier.uuidString
-          var manufacturer:String = (connectedDevices.keys.contains(id) ? (connectedDevices[id] as? ConnectedBLEDevice)?.manufacturerName : "") ?? ""
+          let manufacturer:String = (connectedDevices.keys.contains(id) ? (connectedDevices[id] as? ConnectedBLEDevice)?.manufacturerName : "") ?? ""
           var isDigitMusic:Bool = false
           if (manufacturer == "Digit Audio Technology Ltd.\0") {
             isDigitMusic = true
