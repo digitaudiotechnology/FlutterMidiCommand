@@ -583,8 +583,13 @@ public class SwiftFlutterMidiCommandPlugin: NSObject, CBCentralManagerDelegate, 
                 periph.identifier.uuidString == key
             })) {
                 if let bleDev = value as? ConnectedBLEDevice {
+                    let manufacturer:String = bleDev.manufacturerName ?? ""
+                    var isDigitMusic:Bool = false
+                    if (manufacturer == "Digit Audio Technology Ltd.\0") {
+                        isDigitMusic = true
+                    }
                     devices.append([
-                        "name" : bleDev.peripheral.name ?? "Unknown",
+                        "name" : "\(bleDev.peripheral.name ?? "Unknown") \(isDigitMusic ? "#DigitMusic" :"")",
                         "id" : key,
                         "type" : "BLE",
                         "connected":"true",
