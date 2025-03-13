@@ -18,8 +18,6 @@ import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.*
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.PluginRegistry.Registrar
-
 
 /** FlutterMidiCommandPlugin */
 class FlutterMidiCommandPlugin : FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.RequestPermissionsResultListener {
@@ -107,14 +105,16 @@ class FlutterMidiCommandPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
   // depending on the user's project. onAttachedToEngine or registerWith must both be defined
   // in the same class.
   companion object {
-    @JvmStatic
-    fun registerWith(registrar: Registrar) {
-      var instance = FlutterMidiCommandPlugin()
-      instance.messenger = registrar.messenger()
-      instance.context = registrar.activeContext()
-      instance.activity = registrar.activity()
-      instance.setup()
-    }
+    /*
+      @JvmStatic
+      fun registerWith(registrar: Registrar) {
+        var instance = FlutterMidiCommandPlugin()
+        instance.messenger = registrar.messenger()
+        instance.context = registrar.activeContext()
+        instance.activity = registrar.activity()
+        instance.setup()
+      }
+    */
 
     lateinit var rxStreamHandler:FMCStreamHandler
   }
