@@ -246,7 +246,7 @@ class FlutterMidiCommandPlugin : FlutterPlugin, ActivityAware, MethodCallHandler
   fun appName() : String {
     val pm: PackageManager = context.getPackageManager()
     val info: PackageInfo = pm.getPackageInfo(context.getPackageName(), 0)
-    return info.applicationInfo.loadLabel(pm).toString()
+    return info.applicationInfo?.loadLabel(pm).toString()
   }
 
   private fun tryToInitBT() : String? {

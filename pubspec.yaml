@@ -37,7 +37,7 @@ flutter:
         pluginClass: FlutterMidiCommandPlugin
       macos:
         pluginClass: SwiftFlutterMidiCommandPlugin
-      linux:
-        default_package: flutter_midi_command_linux
+      #linux:
+      #  default_package: flutter_midi_command_linux
       #windows:
       #  default_package: flutter_midi_command_windows
